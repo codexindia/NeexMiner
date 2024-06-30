@@ -21,7 +21,10 @@ class RecentJoinedUser extends BaseWidget
     {
         return $table
             ->defaultSort('id', 'desc')
-            ->query(User::query()->limit(5))
+            ->query(User::query()->where([
+                'name', '!=' ,'Name',
+                'username', '!=', null
+            ])->limit(5))
             ->columns([
                 TextColumn::make('name')->size(TextColumnSize::ExtraSmall),
                 TextColumn::make('username')->size(TextColumnSize::ExtraSmall)->copyMessage('Username Copied SuccessFully')->copyable(),
