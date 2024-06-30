@@ -23,7 +23,7 @@ class RecentJoinedUser extends BaseWidget
             ->defaultSort('id', 'desc')
             ->query(User::query()->whereNot([
                 'name','Name',
-                'username', null
+                
             ])->limit(5))
             ->columns([
                 TextColumn::make('name')->size(TextColumnSize::ExtraSmall),
