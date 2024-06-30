@@ -17,10 +17,16 @@ class ProfileManager extends Controller
         $refer_claimed = false;
         if ($data->referred_by != null || $data->referred_by == "skiped")
             $refer_claimed = true;
+        if ($data->name == 'Name' || $data->username == null) {
+            $required_profile = true;
+        } else {
+            $required_profile = false;
+        }
         return response()->json([
             'status' => true,
             'data' => $data,
             'refer_claimed' => $refer_claimed,
+            'required_profile' => $required_profile,
             'message' => 'done'
         ]);
     }
@@ -31,22 +37,24 @@ class ProfileManager extends Controller
         if ($request->has('name')) {
             $update['name'] = $request->name;
         }
-        if ($request->has('email')) {
-            $check = DB::table('old_balance')->where('email', $request->email)->first();
-
-            if ($check != null) {
-                if ($check->balance != null && $check->balance != 0) {
-                    if (coin_action($user->id, round($check->balance), 'credit', "Old Coins Migrated", $check)) {
-                        sendpush($user, '@' . $user->username . ' Account Migrated Successfully ✅');
-                        DB::delete("DELETE FROM old_balance WHERE email = '$request->email'");
-                    }
-                }
+        if ($request->has('username')) {
+            if(User::where('username',$request->username)->first() != null){
+                return response()->json([
+                 'status' => false,
+                 'message' => 'Username Already Exists'
+                ]);
             }
-
+            $update['username'] = $request->username;
+      
+        }
+        if ($request->has('email')) {
             $update['email'] = $request->email;
         }
         if ($request->has('dob')) {
             $update['date_of_birth'] = $request->dob;
+        }
+        if ($request->has('gender')) {
+            $update['gender'] = $request->gender;
         }
         if ($request->hasFile('profile_pic')) {
             $update['profile_pic'] = Storage::put('public/users/profile', $request->file('profile_pic'));
@@ -56,7 +64,7 @@ class ProfileManager extends Controller
         //$params['android_channel_id'] = '7fbda4a1-81c5-4eb6-9936-a80543c5c06f';
         OneSignal::addParams($params)->sendNotificationToExternalUser(
             "Your Profile Has Been Updated",
-            $user->country_code.$user->phone_number,
+            $user->country_code . $user->phone_number,
             $url = null,
             $data = null,
             $buttons = null,

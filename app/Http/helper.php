@@ -24,7 +24,7 @@ if (!function_exists('coin_action')) {
 
         $user = User::findOrFail($user_id);
         if ($user)
-        $trx = 'MST' . $user_id . time() . rand('10', '99');
+        $trx = 'NEX' . $user_id . time() . rand('10', '99');
         $transaction = new CoinsTransaction;
         $transaction->user_id = $user_id;
         $transaction->coin = $coins;

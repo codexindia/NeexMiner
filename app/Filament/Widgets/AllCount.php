@@ -22,23 +22,23 @@ class AllCount extends BaseWidget
             Stat::make('Total Users', $user_count)
                 ->description('increase in Users')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('success')
+                ->color('primary')
                 ->chart([2, 5, 2, 1, 5, 0]),
 
             Stat::make('Active User ', $activeUserCount)
                 ->description('Last Mined In 24 Hours')
                 //->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('warning'),
+                ->color('primary'),
 
             Stat::make('Total Clicks', $TotalClicks->count)
             ->description('Todays Minings Sessions')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('success')
+                ->color('primary')
                 ->chart([2, 5, 2, 1, 5, 0]),
             Stat::make('Coin Mined Today', !$TotalClicks->total_coin?0:$TotalClicks->total_coin)
                 ->description('increase in Coins')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
-                ->color('success')
+                ->color('primary')
                 ->chart([2, 5, 2, 1, 5, 0])
         ];
     }

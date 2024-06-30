@@ -31,30 +31,69 @@ class AuthManagement extends Controller
             ]);
         }
     }
-    public function login_OTP(Request $request)
+    public function sendOtp(Request $request)
     {
         $request->validate([
+            'phone' => 'required|numeric|min:5',
             'country_code' => 'required|numeric',
-            'phone' => 'required|numeric|exists:users,phone_number|min_digits:7|max_digits:15',
-        ], [
-            'phone.exists' => 'Phone Number Has Not Registered',
-        
-            'phone.min_digits' => 'You Have Entered An Invalid Mobile Number',
-            'phone.max_digits' => 'You Have Entered An Invalid Mobile Number'
         ]);
-        $temp = ['country_code' => $request->country_code];
-        if ($this->genarateotp($request->phone, $temp)) {
-            return response()->json([
-                'status' => true,
-                'message' => 'OTP send successfully',
-            ]);
+        $temp = [
+            'country_code' => $request->country_code
+        ];
+        $this->genarateotp($request->phone,$temp);
+        return response()->json([
+            'status' => true,
+            'message' => 'otp send successfully',
+        ]);
+    }
+
+    public function loginOrSignup(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|numeric|digits:6',
+            'country_code' => 'required|numeric',
+            'phone' => 'required|numeric'
+        ]);
+        $check_otp = $this->VerifyOTP($request->phone, $request->otp);
+        if ($check_otp) {
+            $checkphone = User::where([
+                'phone_number'=>$request->phone,
+                'country_code' => $request->country_code
+            ])->first();
+            if ($checkphone) {
+
+                $token = $checkphone->createToken('auth_token')->plainTextToken;
+                return response()->json([
+                    'status' => true,
+                    'message' => 'OTP Verified  Successfully (Login)',
+                    'token' => $token,
+                ]);
+            } else {
+                $temp = json_decode($check_otp->temp);
+                $newuser = User::create([
+                    'phone_number' => $request->phone,
+                    'country_code' =>  $temp->country_code,
+                    'name' => 'name',
+                    'refer_code' => 'NEX' . rand('100000', '999999'),
+                    'coin' => 0,
+                ]);
+             
+
+                $token = $newuser->createToken('auth_token')->plainTextToken;
+                return response()->json([
+                    'status' => true,
+                    'message' => 'OTP Verified  Successfully (new user)',
+                    'token' => $token,
+                ]);
+            }
         } else {
             return response()->json([
                 'status' => false,
-                'message' => 'OTP Send UnsuccessFully Or Limit Exeeded Try Again Later',
+                'message' => 'Your OTP Is Invalid'
             ]);
         }
     }
+
     private function VerifyOTP($phone, $otp)
     {
         //this for test otp
@@ -79,98 +118,7 @@ class AuthManagement extends Controller
             return $checkotp;
         }
     }
-    public function login_attempt(Request $request)
-    {
-        $request->validate([
-            'country_code' => 'required|numeric',
-            'otp' => 'required|numeric|digits:6',
-            'phone' => 'required|numeric|exists:users,phone_number|min_digits:7|max_digits:15',
-        ]);
-        //  return  $this->VerifyOTP($request->phone, $request->otp);
-        if ($this->VerifyOTP($request->phone, $request->otp)) {
-            $checkphone = User::where('phone_number', $request->phone)->first();
-            if ($checkphone) {
-                $checkphone->tokens()->delete();
-                $token = $checkphone->createToken('auth_token')->plainTextToken;
-
-                return response()->json([
-                    'status' => true,
-                    'message' => 'OTP Verified  Successfully (Login)',
-                    'token' => $token,
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Mobile Has Not Registered',
-                ]);
-            }
-        } else {
-            return response()->json([
-                'status' => false,
-                'message' => 'Your OTP is invalid'
-            ]);
-        }
-    }
-    public function SignUp(Request $request)
-    {
-        $request->validate([
-
-            'country_code' => 'required|numeric',
-            'otp' => 'required|numeric|digits:6',
-            'phone' => 'required|numeric|unique:users,phone_number',
-
-        ]);
-        $data = $this->VerifyOTP($request->phone, $request->otp);
-        if ($data) {
-            $temp = json_decode($data->temp);
-
-            $new_user = User::create([
-                'name' => $temp->name,
-                'username' => $temp->username,
-                'date_of_birth' => $temp->dob,
-                'language' => $temp->lang,
-                'phone_number' => $request->phone,
-                'country_code' => $request->country_code,
-                'refer_code' => 'MST' . rand('100000', '999999'),
-                'coin' => 0,
-            ]);
-
-            $token = $new_user->createToken('auth_token')->plainTextToken;
-            return response()->json([
-                'status' => true,
-                'message' => 'OTP Verified  Successfully (Signup)',
-                'token' => $token,
-            ]);
-        } else {
-            return response()->json([
-                'status' => false,
-                'message' => 'Your OTP is invalid'
-            ]);
-        }
-    }
-    public function SignUP_OTP(Request $request)
-    {
-        $request->validate([
-            'username' => 'required|max:100|unique:users,username',
-            'dob' => 'required|max:100',
-            'lang' => 'required|max:100',
-            'name' => 'required',
-            'phone' => 'required|numeric|min_digits:7|max_digits:15|unique:users,phone_number',
-            'country_code' => 'required|numeric'
-        ]);
-        $temp = [
-            'name' => $request->name,
-            'country_code' => $request->country_code,
-            'username' => $request->username,
-            'dob' => $request->dob,
-            'lang' => $request->lang,
-        ];
-        $this->genarateotp($request->phone, $temp);
-        return response()->json([
-            'status' => true,
-            'message' => 'OTP Send Successfully',
-        ]);
-    }
+  
     public function resend(Request $request)
     {
         $request->validate([
@@ -221,7 +169,7 @@ class AuthManagement extends Controller
             ]);
         };
         $receiverNumber =  $temp['country_code'] . $number;
-        $message = "Hello\nMasth Verification OTP is " . $otp;
+        $message = "Hello\nNeexMiner Verification OTP is " . $otp;
 
         try {
             $resp = Http::post('https://wpsender.nexgino.com/api/create-message', [

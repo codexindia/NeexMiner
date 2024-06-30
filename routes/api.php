@@ -15,11 +15,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('auth')->controller('AuthManagement')->group(function () {
-    Route::post('/login/LoginOTP','login_OTP');
-    Route::post('/login','login_attempt');
-    Route::post('/SignUp','SignUP');
-    Route::post('/SignUp/SendOTP','SignUP_OTP');
-    Route::post('/check_username','check_username');
+    Route::post('/sendOtp','sendOtp');
+    Route::post('/loginOrSignup','loginOrSignup');
+
+    Route::post('/checkUsername','check_username');
 });
 Route::middleware(['check_sc','auth:sanctum','CheckBan'])->group(function () {
     Route::prefix('profile')->controller('ProfileManager')->group(function(){

@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => Color::Yellow,
+                'primary' => Color::Blue,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -55,10 +55,10 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->darkModeBrandLogo(asset('images/logo/dark.svg'))
-            ->brandLogo(asset('images/logo/logo.svg'))
-            ->brandLogoHeight('1.5rem')
-            ->brandName('Masth Admin Panel')
+            ->darkModeBrandLogo(asset('images/logo/dark.png'))
+            ->brandLogo(asset('images/logo/logo.png'))
+            ->brandLogoHeight('3rem')
+            ->brandName('NeexMiner Admin Panel')
             ;
     }
 }

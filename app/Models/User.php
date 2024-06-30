@@ -42,10 +42,10 @@ class User extends Authenticatable
         }
        return url('images/pp.jpg');
     }
-    public function name(): Attribute
+    protected function name(): Attribute
     {
-        return new Attribute(
-            get:fn() => $this->toCamelCaseMethod1($this->firstname . ' ' . $this->lastname),
+        return Attribute::make(
+            get: fn (string $value) => $this->toCamelCaseMethod1($value),
         );
     }
     function toCamelCaseMethod1($inputString)

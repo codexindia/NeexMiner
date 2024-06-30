@@ -89,7 +89,7 @@ class WalletManager extends Controller
         } catch (Exception $e) {
             DB::rollBack();
 
-            $trx = 'MST' . $request->user()->id . time() . rand('10', '99');
+            $trx = 'NEX' . $request->user()->id . time() . rand('10', '99');
             $transaction = new CoinsTransaction;
             $transaction->user_id = $request->user()->id;
             $transaction->coin = $request->coins;
