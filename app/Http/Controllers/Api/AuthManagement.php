@@ -169,7 +169,7 @@ class AuthManagement extends Controller
             ]);
         };
         $receiverNumber =  '+' . $temp['country_code'] . $number;
-        $message = "Hello\nGokwik Verification OTP is " . $otp;
+        $message = "Hello\nNeexMiner Verification OTP is " . $otp;
 
 
         try {
