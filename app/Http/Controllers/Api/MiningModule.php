@@ -64,7 +64,7 @@ class MiningModule extends Controller
         $new->session_id = $request->user()->id . time() . rand('10', '99');
         $new->user_id = $request->user()->id;
         $new->start_time = Carbon::now();
-        $new->end_time = Carbon::now()->addHours(5);
+        $new->end_time = Carbon::now()->addMinutes(5);
         $new->coin = 3;
         $new->save();
         return response()->json([
