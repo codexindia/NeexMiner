@@ -60,16 +60,26 @@ class MiningModule extends Controller
                 'message' => 'An Active Mining Session is already Running'
             ]);
         }
-        $new = new MiningSession;
-        $new->session_id = $request->user()->id . time() . rand('10', '99');
-        $new->user_id = $request->user()->id;
-        $new->start_time = Carbon::now();
-        $new->end_time = Carbon::now()->addMinutes(5);
-        $new->coin = 3;
-        $new->save();
-        return response()->json([
-            'status' => true,
-            'message' => 'Mining Session Submit SuccessFully'
-        ]);
+        try{
+            $new = new MiningSession;
+            $new->session_id = $request->user()->id . time() . rand('10', '99');
+            $new->user_id = $request->user()->id;
+            $new->start_time = Carbon::now();
+            $new->end_time = Carbon::now()->addMinutes(5);
+            $new->coin = 3;
+            $new->save();
+            return response()->json([
+                'status' => true,
+                'mining_data' => $new,
+                'message' => 'Mining Session Submit SuccessFully'
+            ]);
+        }catch(\Exception $e)
+        {
+            return response()->json([
+                'status' => false,
+                'message' => 'Mining Could Not Start'
+            ]);
+        }
+       
     }
 }
