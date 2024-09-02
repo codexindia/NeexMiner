@@ -38,14 +38,13 @@ class ProfileManager extends Controller
             $update['name'] = $request->name;
         }
         if ($request->has('username')) {
-            if(User::where('username',$request->username)->first() != null){
+            if (User::where('username', $request->username)->first() != null) {
                 return response()->json([
-                 'status' => false,
-                 'message' => 'Username Already Exists'
+                    'status' => false,
+                    'message' => 'Username Already Exists'
                 ]);
             }
             $update['username'] = $request->username;
-      
         }
         if ($request->has('email')) {
             $update['email'] = $request->email;
@@ -62,15 +61,17 @@ class ProfileManager extends Controller
 
         $params = [];
         //$params['android_channel_id'] = '7fbda4a1-81c5-4eb6-9936-a80543c5c06f';
-        OneSignal::addParams($params)->sendNotificationToExternalUser(
-            "Your Profile Has Been Updated",
-            $user->country_code . $user->phone_number,
-            $url = null,
-            $data = null,
-            $buttons = null,
-            $schedule = null
-        );
-
+        try {
+            OneSignal::addParams($params)->sendNotificationToExternalUser(
+                "Your Profile Has Been Updated",
+                $user->country_code . $user->phone_number,
+                $url = null,
+                $data = null,
+                $buttons = null,
+                $schedule = null
+            );
+        } catch (\Exception $e) {
+        }
         $user->update($update);
         return response()->json([
             'status' => true,

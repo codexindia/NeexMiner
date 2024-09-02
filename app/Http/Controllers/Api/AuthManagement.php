@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client as Twilio;
+
 class AuthManagement extends Controller
 {
     public function check_username(Request $request)
@@ -40,7 +41,7 @@ class AuthManagement extends Controller
         $temp = [
             'country_code' => $request->country_code
         ];
-        $this->genarateotp($request->phone,$temp);
+        $this->genarateotp($request->phone, $temp);
         return response()->json([
             'status' => true,
             'message' => 'otp send successfully',
@@ -57,8 +58,8 @@ class AuthManagement extends Controller
         $check_otp = $this->VerifyOTP($request->phone, $request->otp);
         if ($check_otp) {
             $checkphone = User::where([
-                'phone_number'=>$request->phone,
-                'country_code' => $request->country_code
+                'phone_number' => $request->phone,
+                'country_code' => str_replace('+', '', $request->country_code)
             ])->first();
             if ($checkphone) {
 
@@ -72,12 +73,12 @@ class AuthManagement extends Controller
                 $temp = json_decode($check_otp->temp);
                 $newuser = User::create([
                     'phone_number' => $request->phone,
-                    'country_code' =>  $temp->country_code,
+                    'country_code' =>  str_replace('+', '', $temp->country_code),
                     'name' => 'name',
                     'refer_code' => 'NEX' . rand('100000', '999999'),
                     'coin' => 0,
                 ]);
-             
+
 
                 $token = $newuser->createToken('auth_token')->plainTextToken;
                 return response()->json([
@@ -118,13 +119,13 @@ class AuthManagement extends Controller
             return $checkotp;
         }
     }
-  
+
     public function resend(Request $request)
     {
         $request->validate([
             'phone' => 'required|numeric|min_digits:7|max_digits:15',
         ], [
-            
+
             'phone.min_digits' => 'You Have Entered An Invalid Mobile Number',
             'phone.max_digits' => 'You Have Entered An Invalid Mobile Number'
         ]);
